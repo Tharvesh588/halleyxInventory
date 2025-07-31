@@ -11,7 +11,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-blue-600 text-white shadow-lg">
+    <nav className="bg-teal-600 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="text-xl font-bold">
@@ -27,14 +27,14 @@ const Navbar = () => {
                 {user.role === 'admin' && (
                   <Link 
                     to="/admin" 
-                    className="px-3 py-2 rounded hover:bg-blue-700 transition-colors"
+                    className="px-3 py-2 rounded hover:bg-teal-700 transition-colors"
                   >
                     Admin Panel
                   </Link>
                 )}
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-2 rounded bg-red-500 hover:bg-red-600 transition-colors"
+                  className="px-3 py-2 rounded bg-gunmetal-600 hover:bg-gunmetal-700 transition-colors"
                 >
                   Logout
                 </button>
@@ -43,13 +43,13 @@ const Navbar = () => {
               <>
                 <Link 
                   to="/login" 
-                  className="px-3 py-2 rounded hover:bg-blue-700 transition-colors"
+                  className="px-3 py-2 rounded hover:bg-teal-700 transition-colors"
                 >
                   Login
                 </Link>
                 <Link 
                   to="/register" 
-                  className="px-3 py-2 rounded bg-green-500 hover:bg-green-600 transition-colors"
+                  className="px-3 py-2 rounded bg-pacific_cyan-500 hover:bg-pacific_cyan-600 transition-colors"
                 >
                   Register
                 </Link>
@@ -62,4 +62,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;

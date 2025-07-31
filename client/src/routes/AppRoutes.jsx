@@ -5,6 +5,9 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Admin from '../pages/Admin';
+import Cart from '../pages/Cart';
+import Checkout from '../pages/Checkout';
+import MyOrders from '../pages/MyOrders';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -34,13 +37,41 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route 
-            path="/admin" 
+
+          {/* Protected routes for authenticated users */}
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <MyOrders />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin-only route */}
+          <Route
+            path="/admin"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Admin />
               </ProtectedRoute>
-            } 
+            }
           />
         </Routes>
       </div>
@@ -48,4 +79,4 @@ const AppRoutes = () => {
   );
 };
 
-export default AppRoutes; 
+export default AppRoutes;

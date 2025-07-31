@@ -27,13 +27,11 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
-    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    // Validate password length
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long');
       return;
@@ -49,22 +47,22 @@ const Register = () => {
     } else {
       setError(result.message);
     }
-    
+
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#caf0f8] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[#022b3a]">
             Create your account
           </h2>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="bg-[#caf0f8] border border-[#00b4d8] text-[#022b3a] px-4 py-3 rounded text-center">
               {error}
             </div>
           )}
@@ -72,7 +70,7 @@ const Register = () => {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="firstName" className="block text-sm font-medium text-[#022b3a]">
                   First Name
                 </label>
                 <input
@@ -82,13 +80,13 @@ const Register = () => {
                   required
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-[#90e0ef] text-[#022b3a] rounded-md focus:outline-none focus:ring-[#00b4d8] focus:border-[#00b4d8] sm:text-sm bg-white"
                   placeholder="First name"
                 />
               </div>
               
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="lastName" className="block text-sm font-medium text-[#022b3a]">
                   Last Name
                 </label>
                 <input
@@ -98,14 +96,14 @@ const Register = () => {
                   required
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-[#90e0ef] text-[#022b3a] rounded-md focus:outline-none focus:ring-[#00b4d8] focus:border-[#00b4d8] sm:text-sm bg-white"
                   placeholder="Last name"
                 />
               </div>
             </div>
             
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-[#022b3a]">
                 Email address
               </label>
               <input
@@ -115,13 +113,13 @@ const Register = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-[#90e0ef] text-[#022b3a] rounded-md focus:outline-none focus:ring-[#00b4d8] focus:border-[#00b4d8] sm:text-sm bg-white"
                 placeholder="Enter your email"
               />
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-[#022b3a]">
                 Password
               </label>
               <input
@@ -131,13 +129,13 @@ const Register = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-[#90e0ef] text-[#022b3a] rounded-md focus:outline-none focus:ring-[#00b4d8] focus:border-[#00b4d8] sm:text-sm bg-white"
                 placeholder="Enter your password"
               />
             </div>
             
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#022b3a]">
                 Confirm Password
               </label>
               <input
@@ -147,7 +145,7 @@ const Register = () => {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-[#90e0ef] text-[#022b3a] rounded-md focus:outline-none focus:ring-[#00b4d8] focus:border-[#00b4d8] sm:text-sm bg-white"
                 placeholder="Confirm your password"
               />
             </div>
@@ -157,16 +155,16 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#007f5f] hover:bg-[#006d48] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#38b000] disabled:opacity-50 transition-all"
             >
               {loading ? 'Creating account...' : 'Create account'}
             </button>
           </div>
 
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[#5c768d]">
               Already have an account?{' '}
-              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to="/login" className="font-medium text-[#0077b6] hover:text-[#023e8a] transition-colors">
                 Sign in here
               </Link>
             </p>
@@ -177,4 +175,4 @@ const Register = () => {
   );
 };
 
-export default Register; 
+export default Register;
