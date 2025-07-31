@@ -16,31 +16,123 @@ html, body {
   color: #022b3a; /* gunmetal */
   min-height: 100%;
   scroll-behavior: smooth;
+  /* Use system font stack fallback for performance */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Links */
 a {
-  color: #0077b6;
+  @apply text-pacific_cyan hover:text-marion_blue transition-colors duration-300;
   text-decoration: none;
 }
 
-a:hover {
-  color: #023e8a;
+a:hover,
+a:focus {
+  outline: none;
 }
 
-/* Remove default button styling */
+/* Remove default button styling and add base styles */
 button {
   font-family: inherit;
-  background: none;
+  background-color: #1f7a8c; /* teal */
+  color: #caf0f8; /* light cyan text */
   border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem; /* rounded-md */
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
+button:hover,
+button:focus {
+  background-color: #134a55; /* dark teal */
+  outline: none;
+}
+
+/* Form inputs */
 input, textarea, select {
   font-family: inherit;
   color: #022b3a;
+  background-color: #e6f1fc; /* very light blue */
+  border: 1px solid #91aec1; /* soft border */
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
+input:focus, textarea:focus, select:focus {
+  border-color: #00b4d8; /* pacific cyan */
+  background-color: white;
+  outline: none;
+}
+
+/* Selection */
 ::selection {
   background-color: #90e0ef;
   color: #022b3a;
+}
+
+/* Responsive typography tweaks (small devices) */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 641px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Example responsive container utility for content */
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Responsive table styling (mobile friendly) */
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead tr {
+    display: none;
+  }
+
+  tbody tr {
+    margin-bottom: 1rem;
+    border: 1px solid #91aec1;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: #e6f1fc;
+  }
+
+  tbody td {
+    padding-left: 50%;
+    position: relative;
+    text-align: left;
+  }
+
+  tbody td::before {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 45%;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #1f7a8c;
+  }
+
+  /* Example labels for responsive table cells */
+  tbody td:nth-of-type(1)::before { content: "Name"; }
+  tbody td:nth-of-type(2)::before { content: "Category"; }
+  tbody td:nth-of-type(3)::before { content: "Price"; }
+  tbody td:nth-of-type(4)::before { content: "Stock"; }
+  tbody td:nth-of-type(5)::before { content: "Actions"; }
 }

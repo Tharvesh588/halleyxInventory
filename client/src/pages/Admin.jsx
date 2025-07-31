@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { productsAPI } from '../services/api';
+import { productsAPI, usersAPI } from '../services/api';
 
 const Admin = () => {
   const { user } = useAuth();
+
   const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
-    stock: '',
-    image: ''
+    name: '', description: '', price: '', category: '', stock: '', image: ''
+  });
+
+  const [editingUser, setEditingUser] = useState(null);
+  const [userFormData, setUserFormData] = useState({
+    firstName: '', lastName: '', role: 'customer', isBlocked: false
   });
 
   useEffect(() => {
@@ -25,24 +28,31 @@ const Admin = () => {
       return;
     }
     fetchProducts();
+    fetchUsers();
   }, [user]);
 
   const fetchProducts = async () => {
     try {
-      const response = await productsAPI.getAll();
-      setProducts(response.data);
-    } catch (err) {
+      const res = await productsAPI.getAll();
+      setProducts(res.data);
+    } catch {
       setError('Failed to load products');
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const res = await usersAPI.getAll();
+      setUsers(res.data);
+    } catch {
+      setError('Failed to load users');
+    }
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -53,11 +63,10 @@ const Admin = () => {
       } else {
         await productsAPI.create(formData);
       }
-      setShowAddForm(false);
-      setEditingProduct(null);
       resetForm();
+      setShowAddForm(false);
       fetchProducts();
-    } catch (err) {
+    } catch {
       setError('Failed to save product');
     }
   };
@@ -67,238 +76,199 @@ const Admin = () => {
     setFormData({
       name: product.name,
       description: product.description,
-      price: product.price.toString(),
+      price: product.price,
       category: product.category,
-      stock: product.stock.toString(),
+      stock: product.stock,
       image: product.image || ''
     });
     setShowAddForm(true);
   };
 
   const handleDelete = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm('Delete this product?')) {
       try {
         await productsAPI.delete(productId);
         fetchProducts();
-      } catch (err) {
+      } catch {
         setError('Failed to delete product');
       }
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      price: '',
-      category: '',
-      stock: '',
-      image: ''
+  const handleUserChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setUserFormData({
+      ...userFormData,
+      [name]: type === 'checkbox' ? checked : value
     });
   };
 
-  const cancelForm = () => {
-    setShowAddForm(false);
+  const handleUserEdit = (user) => {
+    setEditingUser(user);
+    setUserFormData({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      isBlocked: user.isBlocked
+    });
+  };
+
+  const handleUserUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await usersAPI.update(editingUser._id, userFormData);
+      setEditingUser(null);
+      fetchUsers();
+    } catch {
+      setError('Failed to update user');
+    }
+  };
+
+  const handleUserDelete = async (id) => {
+    if (window.confirm('Delete this user?')) {
+      try {
+        await usersAPI.delete(id);
+        fetchUsers();
+      } catch {
+        setError('Failed to delete user');
+      }
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({ name: '', description: '', price: '', category: '', stock: '', image: '' });
     setEditingProduct(null);
+  };
+
+  const cancelForm = () => {
     resetForm();
+    setShowAddForm(false);
   };
 
   if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen bg-light_cyan-100 flex items-center justify-center">
-        <div className="text-xl text-gunmetal-600">Access denied. Admin role required.</div>
-      </div>
-    );
+    return <div className="p-10 text-xl text-red-600">Access denied. Admin role required.</div>;
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-light_cyan-100 flex items-center justify-center">
-        <div className="text-xl text-gunmetal-500">Loading...</div>
-      </div>
-    );
+    return <div className="p-10 text-xl text-gray-600">Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-light_cyan-100">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gunmetal-800">Admin Panel</h1>
+    <div className="min-h-screen p-6 bg-gray-50">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
+
+        {error && <div className="bg-red-100 text-red-700 px-4 py-2 rounded">{error}</div>}
+
+        {/* --- Product Section --- */}
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold">Products</h2>
             <button
               onClick={() => setShowAddForm(true)}
-              className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded"
             >
               Add Product
             </button>
           </div>
 
-          {error && (
-            <div className="bg-light_cyan-200 border border-gunmetal-200 text-gunmetal-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-
-          {/* Add/Edit Product Form */}
           {showAddForm && (
-            <div className="bg-light_cyan-50 p-6 rounded-lg mb-6">
-              <h2 className="text-lg font-semibold mb-4 text-gunmetal-700">
-                {editingProduct ? 'Edit Product' : 'Add New Product'}
-              </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gunmetal-700">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="mt-1 block w-full border border-gunmetal-200 rounded-md px-3 py-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gunmetal-700">Category</label>
-                    <input
-                      type="text"
-                      name="category"
-                      value={formData.category}
-                      onChange={handleChange}
-                      required
-                      className="mt-1 block w-full border border-gunmetal-200 rounded-md px-3 py-2"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gunmetal-700">Description</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    required
-                    rows="3"
-                    className="mt-1 block w-full border border-gunmetal-200 rounded-md px-3 py-2"
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gunmetal-700">Price</label>
-                    <input
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleChange}
-                      required
-                      min="0"
-                      step="0.01"
-                      className="mt-1 block w-full border border-gunmetal-200 rounded-md px-3 py-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gunmetal-700">Stock</label>
-                    <input
-                      type="number"
-                      name="stock"
-                      value={formData.stock}
-                      onChange={handleChange}
-                      required
-                      min="0"
-                      className="mt-1 block w-full border border-gunmetal-200 rounded-md px-3 py-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gunmetal-700">Image URL</label>
-                    <input
-                      type="url"
-                      name="image"
-                      value={formData.image}
-                      onChange={handleChange}
-                      className="mt-1 block w-full border border-gunmetal-200 rounded-md px-3 py-2"
-                    />
-                  </div>
-                </div>
-                <div className="flex space-x-4">
-                  <button
-                    type="submit"
-                    className="bg-pacific_cyan-500 text-white px-4 py-2 rounded hover:bg-pacific_cyan-600"
-                  >
-                    {editingProduct ? 'Update Product' : 'Add Product'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelForm}
-                    className="bg-gunmetal-600 text-white px-4 py-2 rounded hover:bg-gunmetal-700"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
+            <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <input name="name" value={formData.name} onChange={handleChange} placeholder="Name" required />
+                <input name="category" value={formData.category} onChange={handleChange} placeholder="Category" required />
+              </div>
+              <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description" required />
+              <div className="grid grid-cols-3 gap-4">
+                <input name="price" type="number" min="0" value={formData.price} onChange={handleChange} placeholder="Price" required />
+                <input name="stock" type="number" min="0" value={formData.stock} onChange={handleChange} placeholder="Stock" required />
+                <input name="image" type="url" value={formData.image} onChange={handleChange} placeholder="Image URL" />
+              </div>
+              <div className="space-x-2">
+                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+                  {editingProduct ? 'Update' : 'Add'} Product
+                </button>
+                <button type="button" onClick={cancelForm} className="bg-gray-600 text-white px-4 py-2 rounded">
+                  Cancel
+                </button>
+              </div>
+            </form>
           )}
 
-          {/* Products Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gunmetal-200">
-              <thead className="bg-light_cyan-100">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gunmetal-500 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gunmetal-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gunmetal-500 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gunmetal-500 uppercase tracking-wider">
-                    Stock
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gunmetal-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+          <table className="w-full bg-white shadow rounded overflow-hidden">
+            <thead className="bg-gray-200 text-gray-600">
+              <tr>
+                <th className="p-3 text-left">Name</th>
+                <th className="p-3 text-left">Category</th>
+                <th className="p-3 text-left">Price</th>
+                <th className="p-3 text-left">Stock</th>
+                <th className="p-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr key={p._id} className="border-t">
+                  <td className="p-3">{p.name}</td>
+                  <td className="p-3">{p.category}</td>
+                  <td className="p-3">${p.price}</td>
+                  <td className="p-3">{p.stock}</td>
+                  <td className="p-3 space-x-2">
+                    <button onClick={() => handleEdit(p)} className="text-blue-600">Edit</button>
+                    <button onClick={() => handleDelete(p._id)} className="text-red-600">Delete</button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gunmetal-100">
-                {products.map((product) => (
-                  <tr key={product._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gunmetal-800">{product.name}</div>
-                        <div className="text-sm text-gunmetal-400">{product.description}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-light_cyan-200 text-gunmetal-700">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gunmetal-700">
-                      ${product.price}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gunmetal-700">
-                      {product.stock}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="text-teal-600 hover:text-teal-800 mr-4"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="text-gunmetal-600 hover:text-gunmetal-800"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        {/* --- Users Section --- */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Users</h2>
+          <table className="w-full bg-white shadow rounded">
+            <thead className="bg-gray-200 text-gray-600">
+              <tr>
+                <th className="p-3 text-left">Name</th>
+                <th className="p-3 text-left">Email</th>
+                <th className="p-3 text-left">Role</th>
+                <th className="p-3 text-left">Blocked</th>
+                <th className="p-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u._id} className="border-t">
+                  <td className="p-3">{u.firstName} {u.lastName}</td>
+                  <td className="p-3">{u.email}</td>
+                  <td className="p-3">{u.role}</td>
+                  <td className="p-3">{u.isBlocked ? 'Yes' : 'No'}</td>
+                  <td className="p-3 space-x-2">
+                    <button onClick={() => handleUserEdit(u)} className="text-blue-600">Edit</button>
+                    <button onClick={() => handleUserDelete(u._id)} className="text-red-600">Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {editingUser && (
+            <form onSubmit={handleUserUpdate} className="bg-white p-4 mt-6 rounded shadow space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <input name="firstName" value={userFormData.firstName} onChange={handleUserChange} placeholder="First Name" required />
+                <input name="lastName" value={userFormData.lastName} onChange={handleUserChange} placeholder="Last Name" required />
+              </div>
+              <select name="role" value={userFormData.role} onChange={handleUserChange}>
+                <option value="admin">Admin</option>
+                <option value="customer">Customer</option>
+              </select>
+              <label className="block">
+                <input type="checkbox" name="isBlocked" checked={userFormData.isBlocked} onChange={handleUserChange} />
+                <span className="ml-2">Blocked</span>
+              </label>
+              <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Update User</button>
+            </form>
+          )}
+        </section>
       </div>
     </div>
   );

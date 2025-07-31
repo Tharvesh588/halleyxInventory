@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
-// Create axios instance
+// Create axios with base url
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -26,7 +26,7 @@ export const authAPI = {
   getProfile: () => api.get('/auth/me'),
 };
 
-// Products API calls
+// Products ooda API calls
 export const productsAPI = {
   getAll: () => api.get('/products'),
   getById: (id) => api.get(`/products/${id}`),
@@ -34,5 +34,14 @@ export const productsAPI = {
   update: (id, productData) => api.put(`/products/${id}`, productData),
   delete: (id) => api.delete(`/products/${id}`),
 };
+
+//User ooda API
+
+export const usersAPI = {
+  getAll: () => api.get('/users'),
+  update: (id, data) => api.put(`/users/${id}`, data),
+  delete: (id) => api.delete(`/users/${id}`)
+};
+
 
 export default api; 

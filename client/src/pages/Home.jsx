@@ -35,26 +35,7 @@ const Home = () => {
   return (
     <div className={styles.container}>
       <div className={styles.inner}>
-        {/* Welcome Section */}
-        {user ? (
-          <div className={styles.welcomeBox}>
-            <h1>
-              Welcome, {user.firstName}!
-            </h1>
-            <p>
-              You are logged in as a <span style={{ fontWeight: 600 }}>{user.role}</span>
-            </p>
-          </div>
-        ) : (
-          <div className={styles.welcomeBox}>
-            <h1>
-              Welcome to Inventory App
-            </h1>
-            <p>
-              Please login or register to access all features
-            </p>
-          </div>
-        )}
+        
 
         {/* Products Section */}
         <div className={styles.productsBox}>
