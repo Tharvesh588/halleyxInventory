@@ -1,109 +1,130 @@
 import React, { useState, useEffect } from 'react';
-import { usersAPI, authAPI } from '../services/api'; // Import your API services
+import { usersAPI, authAPI } from '../services/api';
 
 const UserDashboard = () => {
-  const [user, setUser] = useState({
+  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     mobile: '',
     address: '',
-    password: '',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch user profile details on component mount
-    const fetchUserProfile = async () => {
+    const fetchProfile = async () => {
       try {
-        const response = await authAPI.getProfile(); // Fetch user profile from your API
-        setUser(response.data); // Assuming response contains the user data
+        const res = await authAPI.getProfile();
+        setUser(res.data);
+        setFormData({
+          name: res.data.name || '',
+          email: res.data.email || '',
+          mobile: res.data.mobile || '',
+          address: res.data.address || '',
+        });
       } catch (err) {
-        setError('Error fetching user profile');
+        setError('Unable to fetch user profile.');
       }
     };
-
-    fetchUserProfile();
+    fetchProfile();
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setUser({
-      ...user,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+    setSuccess('');
     try {
-      const response = await usersAPI.update(user.id, user); // Send updated data to the API
-      setLoading(false);
-      if (response.status === 200) {
-        alert('Profile updated successfully!');
+      if (!user?._id) {
+        setError('User ID not available.');
+        return;
+      }
+      const res = await usersAPI.update(user._id, formData);
+      if (res.status === 200) {
+        setSuccess('Profile updated successfully!');
+      } else {
+        setError('Something went wrong.');
       }
     } catch (err) {
+      setError('Update failed. Please try again.');
+    } finally {
       setLoading(false);
-      setError('Failed to update profile. Please try again.');
     }
   };
 
+  if (!user) return <p className="text-center mt-10">Loading profile...</p>;
+
   return (
-    <div className="user-dashboard">
-      <h2>User Dashboard</h2>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Name</label>
+    <div className="p-4 max-w-xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">My Profile</h2>
+      {error && <p className="text-red-600 mb-2">{error}</p>}
+      {success && <p className="text-green-600 mb-2">{success}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Name</label>
           <input
             type="text"
             name="name"
-            value={user.name}
-            onChange={handleInputChange}
-            placeholder="Enter your name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
           />
         </div>
-        <div className="form-group">
-          <label>Email</label>
+        <div>
+          <label className="block text-sm font-medium">Email</label>
           <input
             type="email"
             name="email"
-            value={user.email}
-            onChange={handleInputChange}
-            placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
           />
         </div>
-        <div className="form-group">
-          <label>Mobile Number</label>
+        <div>
+          <label className="block text-sm font-medium">Mobile</label>
           <input
             type="text"
             name="mobile"
-            value={user.mobile}
-            onChange={handleInputChange}
-            placeholder="Enter your mobile number"
+            value={formData.mobile}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
           />
         </div>
-        <div className="form-group">
-          <label>Address</label>
+        <div>
+          <label className="block text-sm font-medium">Address</label>
           <textarea
             name="address"
-            value={user.address}
-            onChange={handleInputChange}
-            placeholder="Enter your address"
+            value={formData.address}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
           />
         </div>
-        <div className="form-group">
-          <label>Password</label>
+        {/* Optional password field — hidden for now
+        <div>
+          <label className="block text-sm font-medium">New Password</label>
           <input
             type="password"
             name="password"
-            value={user.password}
-            onChange={handleInputChange}
-            placeholder="Enter your new password"
+            value={formData.password || ''}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
           />
-        </div>
-        <button type="submit" disabled={loading}>
+        </div> */}
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+          disabled={loading}
+        >
           {loading ? 'Updating...' : 'Update Profile'}
         </button>
       </form>

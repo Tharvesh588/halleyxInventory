@@ -66,13 +66,14 @@ const AppRoutes = () => {
           />
 
           <Route
-            path="/user/dashboard"
+            path="/profile"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['user']}>
                 <UserDashboard />
               </ProtectedRoute>
             }
           />
+
 
 
 

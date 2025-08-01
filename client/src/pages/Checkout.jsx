@@ -1,183 +1,96 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useCart } from '../context/CartContext';
-import { useOrders } from '../context/OrdersContext';
+import { useNavigate } from 'react-router-dom';
+import { ordersAPI, cartAPI } from '../services/api';
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCart();
-  const { addOrder } = useOrders();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    country: '',
-    cardNumber: '',
-    expiry: '',
-    cvv: '',
-  });
+  const total = cartItems.reduce(
+    (acc, item) => acc + (item.productId.price || 0) * (item.quantity || 0),
+    0
+  );
 
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  if (cartItems.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600 text-lg">Your cart is empty.</p>
-      </div>
-    );
-  }
-
-  const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    if (!formData.fullName || !formData.address || !formData.city || !formData.postalCode || !formData.country) {
-      setError('Please fill all shipping fields.');
-      return;
-    }
-    if (!formData.cardNumber || !formData.expiry || !formData.cvv) {
-      setError('Please fill all payment fields.');
-      return;
-    }
-
-    setLoading(true);
-
+  const handlePlaceOrder = async () => {
     try {
-      await new Promise((res) => setTimeout(res, 1500));
-
       const orderData = {
-        items: cartItems,
-        shipping: {
-          fullName: formData.fullName,
-          address: formData.address,
-          city: formData.city,
-          postalCode: formData.postalCode,
-          country: formData.country,
-        },
-        total: totalPrice,
-        date: new Date().toISOString(),
-        status: 'Processing',
+        items: cartItems.map(item => ({
+          product: item.productId._id,
+          quantity: item.quantity
+        }))
       };
 
-      addOrder(orderData);
+      await ordersAPI.create(orderData);
+      await cartAPI.clear();
       clearCart();
+
+      alert('Order placed successfully!');
       navigate('/orders');
-    } catch {
-      setError('Failed to place order. Please try again.');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error('Checkout failed:', err);
+      alert('Failed to place order!');
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+    <div className="p-4 max-w-5xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Checkout</h2>
 
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>
-      )}
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* Address Section */}
+        <div className="md:col-span-2 bg-white shadow rounded p-4">
+          <h3 className="text-xl font-semibold mb-3">Delivery Address</h3>
+          <div className="border p-3 rounded">
+            <p className="font-medium">Tharvesh Muhaideen</p>
+            <p>123, Main Street, Nagapattinam, TN - 611001</p>
+            <p>Phone: +91 98765 43210</p>
+          </div>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <fieldset className="border p-4 rounded">
-          <legend className="font-semibold mb-2">Shipping Information</legend>
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Full Name"
-            value={formData.fullName}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
-          <input
-            type="text"
-            name="address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
-          <input
-            type="text"
-            name="city"
-            placeholder="City"
-            value={formData.city}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
-          <input
-            type="text"
-            name="postalCode"
-            placeholder="Postal Code"
-            value={formData.postalCode}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
-          <input
-            type="text"
-            name="country"
-            placeholder="Country"
-            value={formData.country}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
-        </fieldset>
+        {/* Payment Summary */}
+        <div className="bg-white shadow rounded p-4">
+          <h3 className="text-xl font-semibold mb-3">Order Summary</h3>
 
-        <fieldset className="border p-4 rounded">
-          <legend className="font-semibold mb-2">Payment Details</legend>
-          <input
-            type="text"
-            name="cardNumber"
-            placeholder="Card Number"
-            value={formData.cardNumber}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
-          <input
-            type="text"
-            name="expiry"
-            placeholder="Expiry Date (MM/YY)"
-            value={formData.expiry}
-            onChange={handleChange}
-            className="w-full border rounded p-2 mb-3"
-            required
-          />
-          <input
-            type="text"
-            name="cvv"
-            placeholder="CVV"
-            value={formData.cvv}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-            required
-          />
-        </fieldset>
+          <div className="max-h-56 overflow-y-auto border rounded mb-3">
+            {cartItems.map(item => (
+              <div
+                key={item.productId._id}
+                className="flex justify-between items-center border-b p-2"
+              >
+                <div>
+                  <p className="font-semibold">{item.productId.name}</p>
+                  <p className="text-sm text-gray-500">
+                    ₹{item.productId.price} × {item.quantity}
+                  </p>
+                </div>
+                <p>₹{item.productId.price * item.quantity}</p>
+              </div>
+            ))}
+          </div>
 
-        <div className="flex justify-between items-center">
-          <div className="text-lg font-semibold">Total: ${totalPrice.toFixed(2)}</div>
+          <div className="border-t pt-2 font-semibold text-lg">
+            Total: ₹{total.toFixed(2)}
+          </div>
+
+          {/* Dummy payment method */}
+          <div className="mt-4">
+            <label className="block mb-1 font-medium">Payment Method</label>
+            <select className="w-full border rounded p-2">
+              <option value="cod">Cash on Delivery</option>
+              <option value="upi">UPI (Not functional)</option>
+              <option value="card">Credit/Debit Card (Mock only)</option>
+            </select>
+          </div>
+
           <button
-            type="submit"
-            disabled={loading}
-            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+            onClick={handlePlaceOrder}
+            className="w-full mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
-            {loading ? 'Placing order...' : 'Place Order'}
+            Place Order
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

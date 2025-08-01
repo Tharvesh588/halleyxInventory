@@ -7,13 +7,22 @@ const router = express.Router();
 // Get all products (public - no auth required)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({ isActive: true });
-    res.json(products);
+    const { page = 1, limit = 10, sort = 'createdAt', order = 'desc' } = req.query;
+
+    const products = await Product.find({ isActive: true })
+      .sort({ [sort]: order === 'asc' ? 1 : -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    const total = await Product.countDocuments({ isActive: true });
+
+    res.json({ products, total, page: Number(page), pages: Math.ceil(total / limit) });
   } catch (error) {
     console.error('Get products error:', error);
     res.status(500).json({ message: 'Server error.' });
   }
 });
+
 
 // Get single product (public - no auth required)
 router.get('/:id', async (req, res) => {

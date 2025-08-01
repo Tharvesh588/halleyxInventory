@@ -1,12 +1,49 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { productsAPI } from '../services/api';
+import { useCart } from '../context/CartContext';
+import { useOrders } from '../context/OrdersContext';
+
 
 const Home = () => {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { addToCart } = useCart();
+  const { addOrder } = useOrders();
+  const [cartItems, setCartItems] = useState([]);
+  const [orderSuccess, setOrderSuccess] = useState('');
+
+  const handleAddToCart = (product) => {
+  console.log("Adding product to cart:", product); // ✅ Debug log
+  addToCart(product);
+};
+
+
+  const handleBuyNow = async (product) => {
+    try {
+      const item = {
+        product: product._id, // 👈 match backend schema
+        quantity: 1,
+        price: product.price,
+      };
+
+      const orderData = {
+        items: [item],
+        totalAmount: product.price,
+      };
+
+      await addOrder(orderData); // ✅ send correct object
+      alert('Order placed successfully!');
+    } catch (error) {
+      console.error('Order failed', error);
+      alert('Order failed');
+    }
+  };
+
+
+
 
   useEffect(() => {
     fetchProducts();
@@ -15,7 +52,7 @@ const Home = () => {
   const fetchProducts = async () => {
     try {
       const response = await productsAPI.getAll();
-      setProducts(response.data);
+      setProducts(response.data.products);
     } catch (err) {
       setError('Failed to load products');
     } finally {
@@ -95,6 +132,20 @@ const Home = () => {
                         <span className="inline-block bg-teal-100 text-teal-700 text-xs px-2 py-1 rounded-full">
                           {product.category}
                         </span>
+                      </div>
+                      <div className="mt-4 flex justify-between space-x-2">
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          className="flex-1 bg-teal-600 text-white px-3 py-1 text-sm rounded hover:bg-teal-700 transition"
+                        >
+                          Add to Cart
+                        </button>
+                        <button
+                          onClick={() => handleBuyNow(product)}
+                          className="flex-1 bg-blue-600 text-white px-3 py-1 text-sm rounded hover:bg-blue-700 transition"
+                        >
+                          Buy Now
+                        </button>
                       </div>
                     </div>
                   </div>

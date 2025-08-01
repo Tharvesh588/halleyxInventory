@@ -157,7 +157,7 @@ const Admin = () => {
         productsAPI.getAll(),
         usersAPI.getAll()
       ]);
-      setProducts(productsRes.data);
+      setProducts(productsRes.data.products);;
       setUsers(usersRes.data);
     } catch {
       setError('Failed to load data');

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
-// GET /users - Get all users with selected fields
-router.get('/', async (req, res) => {
+// GET /users - Admin only: Get all users with selected fields
+router.get('/', verifyToken, requireAdmin, async (req, res) => {
   try {
     const users = await User.find({}, 'firstName lastName email role isBlocked');
     res.json(users);
@@ -12,8 +13,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// PUT /users/:id - Update user (excluding password)
-router.put('/:id', async (req, res) => {
+// PUT /users/:id - Admin only: Update user (excluding password)
+router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
   const { firstName, lastName, email, role, isBlocked } = req.body;
 
   try {
@@ -33,8 +34,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /users/:id - Delete a user
-router.delete('/:id', async (req, res) => {
+// DELETE /users/:id - Admin only: Delete a user
+router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
 
