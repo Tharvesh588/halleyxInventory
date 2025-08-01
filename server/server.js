@@ -20,10 +20,12 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/inventory-a
 // Import routes
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
+const userRoutes = require('./routes/users');
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

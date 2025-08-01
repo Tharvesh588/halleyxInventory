@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import UserDashboard from '../pages/User'; 
 import Admin from '../pages/Admin';
 import Cart from '../pages/Cart';
 import Checkout from '../pages/Checkout';
@@ -63,6 +64,18 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/user/dashboard"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+
+
 
           {/* Admin-only route */}
           <Route

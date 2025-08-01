@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { productsAPI } from '../services/api';
-import styles from './Home.module.css';
 
 const Home = () => {
   const { user } = useAuth();
@@ -26,66 +25,83 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div className={styles.center}>
-        <div>Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center space-y-4">
+          <svg className="animate-spin h-8 w-8 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span className="text-gray-600">Loading products...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.inner}>
-        
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="space-y-8">
+          {/* Products Section */}
+          <section className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Products</h2>
+            {error && (
+              <div className="bg-red-100 text-red-700 px-4 py-3 rounded-lg flex items-center mb-6">
+                <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {error}
+              </div>
+            )}
 
-        {/* Products Section */}
-        <div className={styles.productsBox}>
-          <h2>Available Products</h2>
-          {error && (
-            <div className={styles.error}>
-              {error}
-            </div>
-          )}
-
-          {products.length === 0 ? (
-            <div className={styles.empty}>
-              <p>No products available</p>
-            </div>
-          ) : (
-            <div className={styles.productsGrid}>
-              {products.map((product) => (
-                <div key={product._id} className={styles.productCard}>
-                  {product.image && (
-                    <img 
-                      src={product.image} 
-                      alt={product.name}
-                      className={styles.productImage}
-                    />
-                  )}
-                  <div className={styles.productContent}>
-                    <h3 className={styles.productTitle}>
-                      {product.name}
-                    </h3>
-                    <p className={styles.productDesc}>
-                      {product.description}
-                    </p>
-                    <div className={styles.productFooter}>
-                      <span className={styles.price}>
-                        ${product.price}
-                      </span>
-                      <span className={styles.stock}>
-                        Stock: {product.stock}
-                      </span>
-                    </div>
-                    <div>
-                      <span className={styles.category}>
-                        {product.category}
-                      </span>
+            {products.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-600 text-lg">No products available</p>
+                <p className="text-gray-500">Check back later for new items!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <div
+                    key={product._id}
+                    className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                  >
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-48 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                        <span className="text-gray-400 text-sm">No Image</span>
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-gray-800 truncate">
+                        {product.name}
+                      </h3>
+                      <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                        {product.description}
+                      </p>
+                      <div className="mt-4 flex justify-between items-center">
+                        <span className="text-teal-600 font-medium text-lg">
+                          ${product.price}
+                        </span>
+                        <span className="text-gray-500 text-sm">
+                          Stock: {product.stock}
+                        </span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="inline-block bg-teal-100 text-teal-700 text-xs px-2 py-1 rounded-full">
+                          {product.category}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </div>
