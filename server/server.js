@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/inventory-app', {
+mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://Tharvesh:tharvesh2026@inventory.1oksmnl.mongodb.net/inventory-app?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
